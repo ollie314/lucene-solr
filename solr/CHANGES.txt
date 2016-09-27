@@ -102,6 +102,9 @@ New Features
 
 * SOLR-9558: DIH TemplateTransformerto to support multivalued fields (Ted Sullivan via noble)
 
+* SOLR-9557: Every implicit requesthandler now has a default 'useParams' attribute (noble)
+
+
 Bug Fixes
 ----------------------
 
@@ -125,6 +128,8 @@ Bug Fixes
 * SOLR-9542: Kerberos delegation tokens requires Jackson library (Ishan Chattopadhyaya via noble)
 
 * SOLR-9330: Fix AlreadyClosedException on admin/mbeans?stats=true (Mikhail Khludnev)
+
+* SOLR-9411: Better validation for Schema REST API add-dynamic-field (janhoy)
 
 Optimizations
 ----------------------
@@ -183,7 +188,8 @@ Other Changes
 * SOLR-9544: Allow ObjectReleaseTracker more time to check for asynchronously
   closing resources (Alan Woodward)
 
-* SOLR-6677: Reduced logging during Solr startup, moved more logs to DEBUG level (janhoy, Shawn Heisey)
+* SOLR-6677: Reduced logging during startup and shutdown, moved more logs to DEBUG level
+  (janhoy, Shawn Heisey, Alan Woodward)
 
 * SOLR-6090: Remove unreachable printLayout usage in cloud tests. (Cao Manh Dat via shalin)
 
@@ -194,6 +200,10 @@ Other Changes
   Woodward)
 
 * SOLR-9548: The beginning of solr.log now starts with a more informative welcome message (janhoy)
+
+* SOLR-9547: Do not allow bin/solr start as root user, unless -force param specified (janhoy)
+
+* SOLR-9567: Make ReRankQParserPlugin's private ReRankCollector a public class of its own. (Christine Poerschke)
 
 ==================  6.2.1 ==================
 
