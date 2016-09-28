@@ -104,6 +104,7 @@ New Features
 
 * SOLR-9557: Every implicit requesthandler now has a default 'useParams' attribute (noble)
 
+* SOLR-9572: config API to show expanded useParams for request handlers inline (noble)
 
 Bug Fixes
 ----------------------
@@ -204,6 +205,11 @@ Other Changes
 * SOLR-9547: Do not allow bin/solr start as root user, unless -force param specified (janhoy)
 
 * SOLR-9567: Make ReRankQParserPlugin's private ReRankCollector a public class of its own. (Christine Poerschke)
+
+* SOLR-7436: Solr stops printing stacktraces in log and output (janhoy, hossman, Markus Jelsma)
+
+* SOLR-9576: Make FieldAnalysisRequestHandler, DocumentAnalysisRequestHandler & DumpRequestHandler
+  implicit (noble)
 
 ==================  6.2.1 ==================
 
