@@ -106,6 +106,12 @@ New Features
 
 * SOLR-9572: config API to show expanded useParams for request handlers inline (noble)
 
+* SOLR-9258: Optimizing, storing and deploying AI models with Streaming Expressions (Cao Manh Dat, Joel Bernstein)
+
+* SOLR-9205: Added method LukeResponse.getSchemaFlags() which returns field
+  information as an EnumSet (Fengtan, Alan Woodward)
+
+
 Bug Fixes
 ----------------------
 
@@ -134,6 +140,12 @@ Bug Fixes
 
 * SOLR-9504: A replica with an empty index becomes the leader even when other more qualified replicas
   are in line. (shalin)
+
+* SOLR-9554: Fix NullPointerException when cores are loaded in parallel and switch schema.xml to managed-scheme.
+ (Alan Woodward, Mikhail Khludnev)
+
+* SOLR-9556: OverseerAutoFailoverReplicaThread was not exiting on interrupt
+  (Alan Woodward)
 
 Optimizations
 ----------------------
