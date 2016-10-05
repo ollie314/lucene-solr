@@ -115,6 +115,7 @@ New Features
 * SOLR-9205: Added method LukeResponse.getSchemaFlags() which returns field
   information as an EnumSet (Fengtan, Alan Woodward)
 
+* SOLR-9520: Kerberos delegation support in SolrJ (Ishan Chattopadhyaya, noble)
 
 Bug Fixes
 ----------------------
@@ -151,6 +152,10 @@ Bug Fixes
 * SOLR-9556: OverseerAutoFailoverReplicaThread was not exiting on interrupt
   (Alan Woodward)
 
+* SOLR-9563: Collection creation could fail if an ADDREPLICA subrequest arrived
+  at a node before its local state had updated with the new collection data
+  (Alan Woodward)
+
 Optimizations
 ----------------------
 
@@ -168,6 +173,11 @@ Optimizations
 
 * SOLR-9446: Leader failure after creating a freshly replicated index can send nodes into recovery even if
   index was not changed (Pushkar Raste, noble)
+
+* SOLR-9592: retrieving docValues as stored values was sped up by using the proper leaf
+  reader rather than ask for a global view.  In extreme cases, this leads to a 100x speedup.
+  (Takahiro Ishikawa, yonik)
+
 
 Other Changes
 ----------------------
@@ -233,6 +243,13 @@ Other Changes
 * SOLR-9574: Factor out AbstractReRankQuery from ReRankQParserPlugin's private ReRankQuery. (Christine Poerschke)
 
 * SOLR-5041: Add a test to make sure that a leader always recovers from log on startup. (Cao Manh Dat, shalin)
+
+* SOLR-9588: Remove Guava dependency from SolrJ (Ishan Chattopadhyaya, noble)
+
+* SOLR-8140: Remove mentions of unimplemented admin-extra from the new Admin UI (Alexandre Rafalovitch)
+
+* SOLR-9589: Remove jackson dependency from SolrJ (Ishan Chattopadhyaya, noble)
+
 
 ==================  6.2.1 ==================
 

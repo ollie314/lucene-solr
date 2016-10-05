@@ -22,6 +22,7 @@ import java.io.IOException;
 import org.apache.lucene.codecs.DocValuesConsumer;
 import org.apache.lucene.codecs.DocValuesFormat;
 import org.apache.lucene.codecs.DocValuesProducer;
+import org.apache.lucene.codecs.lucene70.Lucene70DocValuesFormat;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.SegmentReadState;
 import org.apache.lucene.index.SegmentWriteState;
@@ -95,7 +96,9 @@ import org.apache.lucene.util.packed.DirectWriter;
  *   <li><tt>.dvm</tt>: DocValues metadata</li>
  * </ol>
  * @lucene.experimental
+ * @deprecated Use {@link Lucene70DocValuesFormat}.
  */
+@Deprecated
 public final class Lucene54DocValuesFormat extends DocValuesFormat {
 
   /** Sole Constructor */
