@@ -14,17 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.lucene.benchmark.byTask.tasks;
+package org.apache.solr.client.solrj.impl;
 
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.IndexReader;
+import java.net.URL;
+import java.util.Arrays;
 
-/**
- * Abstract class for benchmarking highlighting performance
- */
-public abstract class BenchmarkHighlighter {
-  public abstract int doHighlight( IndexReader reader, int doc, String field,
-      Document document, Analyzer analyzer, String text ) throws Exception ;
+import org.apache.solr.util.RandomizeSSL;
+import org.junit.BeforeClass;
+
+@RandomizeSSL(1.0)
+public class HttpSolrClientSSLAuthConPoolTest extends HttpSolrClientConPoolTest {
+
+    @BeforeClass
+    public static void checkUrls() throws Exception {
+      URL[] urls = new URL[] {
+          jetty.getBaseUrl(), yetty.getBaseUrl() 
+      };
+      for (URL u : urls) {
+        assertEquals("expect https urls ","https", u.getProtocol());
+      }
+      assertFalse("expect different urls "+Arrays.toString(urls),
+              urls[0].equals(urls[1]));
+    }
 }
