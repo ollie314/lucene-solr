@@ -53,6 +53,10 @@ Optimizations
   check on every request and move connection lifecycle management towards the client.
   (Ryan Zezeski, Mark Miller, Shawn Heisey, Steve Davids)
 
+* SOLR-9579: Make Solr's SchemaField implement Lucene's IndexableFieldType, removing the 
+  creation of a Lucene FieldType every time a field is indexed. (John Call, yonik) 
+
+
 ==================  6.3.0 ==================
 
 Consult the LUCENE_CHANGES.txt file for additional, low level, changes in this release.
@@ -120,6 +124,8 @@ New Features
 * SOLR-9146: Parallel SQL engine should support >, >=, <, <=, <>, != syntax (Timothy Potter, Joel Bernstein, Kevin Risden)
 
 * SOLR-9337: Add fetch Streaming Expression (Joel Bernstein)
+
+* SOLR-9103: Restore ability for users to add custom Streaming Expressions (Cao Manh Dat)
 
 Bug Fixes
 ----------------------
@@ -260,6 +266,10 @@ Other Changes
 * SOLR-9589: Remove jackson dependency from SolrJ (Ishan Chattopadhyaya, noble)
 
 * SOLR-8385: Narrow StreamFactory.withFunctionName clazz parameter to prevent misconfiguration (Jason Gerlowski, Kevin Risden)
+
+* SOLR-8969: SQLHandler causes NPE in non-cloud mode (Markus Jelsma, Kevin Risden)
+
+* SOLR-9610: New AssertTool in SolrCLI for easier cross platform assertions from command line (janhoy)
 
 ==================  6.2.1 ==================
 
