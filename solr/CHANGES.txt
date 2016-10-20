@@ -41,6 +41,9 @@ Upgrading from Solr 6.x
 * Query time join with scoring {!join score=none} (even none) doesn't handle single value numeric fields.
   Users are advised to convert these fields into string and reindex.
 
+* Deprecated collection and configset methods on MiniSolrCloudCluster have been
+  removed
+
 Bug Fixes
 ----------------------
 * SOLR-9262: Connection and read timeouts are being ignored by UpdateShardHandler after SOLR-4509.
@@ -77,14 +80,22 @@ Upgrade Notes
 ----------------------
 
 * If you use the JSON Facet API (json.facet) with method=stream, you must now set sort='index asc' to get the streaming
-behavior; otherwise it won't stream.  Reminder: "method" is a hint that doesn't change defaults of other parameters.
+  behavior; otherwise it won't stream.  Reminder: "method" is a hint that doesn't change defaults of other parameters.
 
 * If you use the JSON Facet API (json.facet) to facet on a numeric field and if you use mincount=0 or if you set the
-prefix, then you will now get an error as these options are incompatible with numeric faceting.
+  prefix, then you will now get an error as these options are incompatible with numeric faceting.
 
 * Solr's logging verbosity at the INFO level has been greatly reduced, and
   you may need to update the log configs to use the DEBUG level to get the
   same logging messages as before.
+
+* The create/deleteCollection methods on MiniSolrCloudCluster have been
+  deprecated.  Clients should instead use the CollectionAdminRequest API.  In
+  addition, MiniSolrCloudCluster#uploadConfigSet(File, String) has been
+  deprecated in favour of #uploadConfigSet(Path, String)
+
+* The bin/solr.in.sh (bin/solr.in.cmd on Windows) is now completely commented by default. Previously, this wasn't so,
+  which had the effect of masking existing environment variables.
 
 New Features
 ----------------------
@@ -126,6 +137,10 @@ New Features
 * SOLR-9337: Add fetch Streaming Expression (Joel Bernstein)
 
 * SOLR-9103: Restore ability for users to add custom Streaming Expressions (Cao Manh Dat)
+
+* SOLR-9657: New TemplateUpdateProcessorFactory added (noble)
+
+* SOLR-9417: Allow daemons to terminate when they finish iterating a topic (Joel Bernstein)
 
 Bug Fixes
 ----------------------
@@ -171,6 +186,8 @@ Bug Fixes
 * SOLR-9604: Pooled SSL connections were not being re-used (Alan Woodward,
   Mikhail Khludnev, hossman)
 
+* SOLR-9325: solr.log is now written to $SOLR_LOGS_DIR without changing log4j.properties (janhoy)
+
 Optimizations
 ----------------------
 
@@ -193,6 +210,8 @@ Optimizations
   reader rather than ask for a global view.  In extreme cases, this leads to a 100x speedup.
   (Takahiro Ishikawa, yonik)
 
+* SOLR-9566: Don't put replicas into recovery when first creating a Collection
+  (Alan Woodward)
 
 Other Changes
 ----------------------
@@ -270,6 +289,21 @@ Other Changes
 * SOLR-8969: SQLHandler causes NPE in non-cloud mode (Markus Jelsma, Kevin Risden)
 
 * SOLR-9610: New AssertTool in SolrCLI for easier cross platform assertions from command line (janhoy)
+
+* SOLR-9639: Test only fix. Prevent CDCR tests from removing collection during recovery that used to blow up jvm  (Mikhail Khludnev)
+
+* SOLR-9625: Add HelloWorldSolrCloudTestCase class (Christine Poerschke, Alan Woodward, Alexandre Rafalovitch)
+
+* SOLR-9642: Refactor the core level snapshot cleanup mechanism to rely on Lucene (Hrishikesh Gadre via yonik)
+
+* SOLR-9627: Add QParser.getSortSpec, deprecate misleadingly named QParser.getSort (Judith Silverman, Christine Poerschke)
+
+* SOLR-9632: Add MiniSolrCloudCluster#deleteAllCollections() method (Alan Woodward)
+
+* SOLR-9634: Deprecate collection methods on MiniSolrCloudCluster (Alan Woodward)
+
+* SOLR-7850: Moved defaults within bin/solr.in.sh (and bin/solr.in.cmd on Windows) to bin/solr (and bin/solr.cmd)
+  such that the default state of these files is to set nothing. This makes Solr work better with Docker. (David Smiley)
 
 ==================  6.2.1 ==================
 
