@@ -63,6 +63,55 @@ Optimizations
   creation of a Lucene FieldType every time a field is indexed. (John Call, yonik) 
 
 
+==================  6.4.0 ==================
+
+Consult the LUCENE_CHANGES.txt file for additional, low level, changes in this release.
+
+Versions of Major Components
+---------------------
+Apache Tika 1.13
+Carrot2 3.12.0
+Velocity 1.7 and Velocity Tools 2.0
+Apache UIMA 2.3.1
+Apache ZooKeeper 3.4.6
+Jetty 9.3.8.v20160314
+
+Detailed Change List
+----------------------
+
+New Features
+----------------------
+* SOLR-9681: FacetModule / JSON Facet API added the ability to add filters directly to
+  any facet command.  The filters are applied after any domain change operations.
+  Example:  { type:terms, field:category, filter:"user:yonik" } 
+  (yonik)
+
+* SOLR-9442: Adds Array of NamedValuePair (json.nl=arrnvp) style to JSONResponseWriter.
+  (Jonny Marks, Christine Poerschke)
+
+* SOLR-9481: Authentication and Authorization plugins now work in standalone mode if security.json is placed in
+  SOLR_HOME on every node. Editing config through API is supported but affects only that one node. 
+  (janhoy)
+
+Optimizations
+----------------------
+* SOLR-9704: Facet Module / JSON Facet API: Optimize blockChildren facets that have
+  filters specified by using those filters as acceptDocs. (yonik)
+
+Bug Fixes
+----------------------
+* SOLR-9701: NPE in export handler when "fl" parameter is omitted.
+  (Erick Erickson)
+
+* SOLR-9433: SolrCore clean-up logic uses incorrect path to delete dataDir on failure to create a core.
+  (Evan Sayer, shalin)
+
+Other Changes
+----------------------
+
+* SOLR-9621: Remove several Guava & Apache Commons calls in favor of java 8 alternatives.
+  (Michael Braun via David Smiley)
+
 ==================  6.3.0 ==================
 
 Consult the LUCENE_CHANGES.txt file for additional, low level, changes in this release.
@@ -160,11 +209,14 @@ New Features
 * SOLR-9654: Add "overrequest" parameter to JSON Facet API to control amount of overrequest
   on a distributed terms facet. (yonik)
 
-* SOLR-9481: Authentication and Authorization plugins now work in standalone mode if security.json is placed in
-  SOLR_HOME on every node. Editing config through API is supported but affects only that one node. 
-  (janhoy)
-
 * SOLR-2212: Add a factory class corresponding to Lucene's NoMergePolicy. (Lance Norskog, Cao Manh Dat via shalin)
+
+* SOLR-9670: Support SOLR_AUTHENTICATION_OPTS in solr.cmd (janhoy)
+
+* SOLR-9559: Add ExecutorStream to execute stored Streaming Expressions (Joel Bernstein)
+
+* SOLR-1085: Add support for MoreLikeThis queries and responses in SolrJ client.
+  (Maurice Jumelet, Bill Mitchell, Cao Manh Dat via shalin)
 
 Bug Fixes
 ----------------------
@@ -225,6 +277,16 @@ Bug Fixes
 
 * SOLR-2039: Multivalued fields with dynamic names does not work properly with DIH.
   (K A, ruslan.shv, Cao Manh Dat via shalin)
+
+* SOLR-4164: group.limit=-1 was not supported for grouping in distributed mode.
+  (Cao Manh Dat, Lance Norskog, Webster Homer, hossman, yonik)
+
+* SOLR-9692: blockUnknown property makes inter-node communication impossible (noble)
+
+* SOLR-2094: XPathEntityProcessor should reinitialize the XPathRecordReader instance if
+  the 'forEach' or 'xpath' attributes are templates & it is not a root entity (Cao Manh Dat, noble)
+
+* SOLR-9697: zk upconfig broken on windows (Xavier Jmlucjav via janhoy)
  
 Optimizations
 ----------------------
@@ -334,6 +396,8 @@ Other Changes
 
 * SOLR-9610: New AssertTool in SolrCLI for easier cross platform assertions from command line (janhoy)
 
+* SOLR-9680: Better error messages in SolrCLI when authentication required (janhoy)
+
 * SOLR-9639: Test only fix. Prevent CDCR tests from removing collection during recovery that used to blow up jvm  (Mikhail Khludnev)
 
 * SOLR-9625: Add HelloWorldSolrCloudTestCase class (Christine Poerschke, Alan Woodward, Alexandre Rafalovitch)
@@ -362,6 +426,12 @@ Other Changes
 * SOLR-5245: Add a test to ensure that election contexts are keyed off both collection name and coreNodeName
   so that killing a shard in one collection does not result in leader election in a different collection.
   See SOLR-5243 for the related bug. (Cao Manh Dat via shalin)
+
+* SOLR-9533: Reload core config when a core is reloaded (Gethin James, Joel Bernstein)
+
+* SOLR-9371: Fix bin/solr calculations for start/stop wait time and RMI_PORT.
+  (Shawn Heisey via Erick Erickson)
+
 
 ==================  6.2.1 ==================
 

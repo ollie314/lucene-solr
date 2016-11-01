@@ -23,12 +23,12 @@ import java.io.OutputStream;
 import java.lang.invoke.MethodHandles;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.util.Utils;
 import org.apache.solr.core.CoreContainer;
-import org.apache.solr.core.SolrResourceLoader;
 import org.apache.solr.response.SolrQueryResponse;
 import org.apache.solr.util.CommandOperation;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class SecurityConfHandlerLocal extends SecurityConfHandler {
   
   public SecurityConfHandlerLocal(CoreContainer coreContainer) {
     super(coreContainer);
-    securityJsonPath = SolrResourceLoader.locateSolrHome().resolve("security.json");
+    securityJsonPath = Paths.get(coreContainer.getSolrHome()).resolve("security.json");
   }
 
   /**
@@ -56,7 +56,9 @@ public class SecurityConfHandlerLocal extends SecurityConfHandler {
     if (Files.exists(securityJsonPath)) {
       try (InputStream securityJsonIs = Files.newInputStream(securityJsonPath)) {
         return new SecurityConfig().setData(securityJsonIs);
-      } catch (IOException e) { /* Fall through */ }
+      } catch (Exception e) { 
+        throw new SolrException(SolrException.ErrorCode.SERVER_ERROR, "Failed opening existing security.json file: " + securityJsonPath, e);
+      }
     }
     return new SecurityConfig();
   }
