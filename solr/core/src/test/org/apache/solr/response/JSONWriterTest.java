@@ -76,7 +76,20 @@ public class JSONWriterTest extends SolrTestCaseJ4 {
 
   @Test
   public void testJSON() throws IOException {
-    final String namedListStyle = (random().nextBoolean() ? JSONWriter.JSON_NL_ARROFARR : JSONWriter.JSON_NL_ARROFNVP);
+    final String[] namedListStyles = new String[] {
+        JSONWriter.JSON_NL_FLAT,
+        JSONWriter.JSON_NL_MAP,
+        JSONWriter.JSON_NL_ARROFARR,
+        JSONWriter.JSON_NL_ARROFMAP,
+        JSONWriter.JSON_NL_ARROFNVP,
+    };
+    for (final String namedListStyle : namedListStyles) {
+      implTestJSON(namedListStyle);
+    }
+    assertEquals(JSONWriter.JSON_NL_STYLE_COUNT, namedListStyles.length);
+  }
+
+  private void implTestJSON(final String namedListStyle) throws IOException {
     SolrQueryRequest req = req("wt","json","json.nl",namedListStyle);
     SolrQueryResponse rsp = new SolrQueryResponse();
     JSONResponseWriter w = new JSONResponseWriter();
@@ -94,8 +107,14 @@ public class JSONWriterTest extends SolrTestCaseJ4 {
     w.write(buf, req, rsp);
 
     final String expectedNLjson;
-    if (namedListStyle == JSONWriter.JSON_NL_ARROFARR) {
+    if (namedListStyle == JSONWriter.JSON_NL_FLAT) {
+      expectedNLjson = "\"nl\":[\"data1\",\"he\\u2028llo\\u2029!\",null,42]";
+    } else if (namedListStyle == JSONWriter.JSON_NL_MAP) {
+      expectedNLjson = "\"nl\":{\"data1\":\"he\\u2028llo\\u2029!\",\"\":42}";
+    } else if (namedListStyle == JSONWriter.JSON_NL_ARROFARR) {
       expectedNLjson = "\"nl\":[[\"data1\",\"he\\u2028llo\\u2029!\"],[null,42]]";
+    } else if (namedListStyle == JSONWriter.JSON_NL_ARROFMAP) {
+      expectedNLjson = "\"nl\":[{\"data1\":\"he\\u2028llo\\u2029!\"},42]";
     } else if (namedListStyle == JSONWriter.JSON_NL_ARROFNVP) {
       expectedNLjson = "\"nl\":[{\"name\":\"data1\",\"str\":\"he\\u2028llo\\u2029!\"},{\"int\":42}]";
     } else {
@@ -162,15 +181,19 @@ public class JSONWriterTest extends SolrTestCaseJ4 {
     methodsExpectedNotOverriden.add("writeMapOpener");
     methodsExpectedNotOverriden.add("writeMapSeparator");
     methodsExpectedNotOverriden.add("writeMapCloser");
+    methodsExpectedNotOverriden.add("public void org.apache.solr.response.JSONWriter.writeArray(java.lang.String,java.util.List) throws java.io.IOException");
     methodsExpectedNotOverriden.add("writeArrayOpener");
     methodsExpectedNotOverriden.add("writeArraySeparator");
     methodsExpectedNotOverriden.add("writeArrayCloser");
+    methodsExpectedNotOverriden.add("public void org.apache.solr.response.JSONWriter.writeMap(org.apache.solr.common.MapWriter) throws java.io.IOException");
+    methodsExpectedNotOverriden.add("public void org.apache.solr.response.JSONWriter.writeIterator(org.apache.solr.common.IteratorWriter) throws java.io.IOException");
 
     final Class<?> subClass = ArrayOfNamedValuePairJSONWriter.class;
     final Class<?> superClass = subClass.getSuperclass();
 
     for (final Method superClassMethod : superClass.getDeclaredMethods()) {
       final String methodName = superClassMethod.getName();
+      final String methodFullName = superClassMethod.toString();
       if (!methodName.startsWith("write")) continue;
 
       final int modifiers = superClassMethod.getModifiers();
@@ -178,7 +201,8 @@ public class JSONWriterTest extends SolrTestCaseJ4 {
       if (Modifier.isStatic(modifiers)) continue;
       if (Modifier.isPrivate(modifiers)) continue;
 
-      final boolean expectOverriden = !methodsExpectedNotOverriden.contains(methodName);
+      final boolean expectOverriden = !methodsExpectedNotOverriden.contains(methodName)
+          && !methodsExpectedNotOverriden.contains(methodFullName);
 
       try {
         final Method subClassMethod = subClass.getDeclaredMethod(
@@ -196,7 +220,7 @@ public class JSONWriterTest extends SolrTestCaseJ4 {
         if (expectOverriden) {
           fail(subClass + " needs to override '" + superClassMethod + "'");
         } else {
-          assertTrue(methodName+" not found in remaining "+methodsExpectedNotOverriden, methodsExpectedNotOverriden.remove(methodName));
+          assertTrue(methodName+" not found in remaining "+methodsExpectedNotOverriden, methodsExpectedNotOverriden.remove(methodName)|| methodsExpectedNotOverriden.remove(methodFullName));
         }
       }
     }

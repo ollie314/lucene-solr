@@ -24,8 +24,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.solr.common.IteratorWriter;
+import org.apache.solr.common.MapWriter.EntryWriter;
+import org.apache.solr.common.PushWriter;
 import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.params.CommonParams;
+import org.apache.solr.common.MapWriter;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.common.util.SimpleOrderedMap;
@@ -75,6 +78,11 @@ public class JSONResponseWriter implements QueryResponseWriter {
   public String getContentType(SolrQueryRequest request, SolrQueryResponse response) {
     return contentType;
   }
+
+  public static PushWriter getPushWriter(Writer writer, SolrQueryRequest req, SolrQueryResponse rsp) {
+    return new JSONWriter(writer, req, rsp);
+  }
+
 }
 
 class JSONWriter extends TextResponseWriter {
@@ -82,11 +90,14 @@ class JSONWriter extends TextResponseWriter {
   final protected String namedListStyle;
 
   static final String JSON_NL_STYLE="json.nl";
+  static final int    JSON_NL_STYLE_COUNT = 5; // for use by JSONWriterTest
+
   static final String JSON_NL_MAP="map";
   static final String JSON_NL_FLAT="flat";
   static final String JSON_NL_ARROFARR="arrarr";
   static final String JSON_NL_ARROFMAP="arrmap";
   static final String JSON_NL_ARROFNVP="arrnvp";
+
   static final String JSON_WRAPPER_FUNCTION="json.wrf";
 
   public JSONWriter(Writer writer, SolrQueryRequest req, SolrQueryResponse rsp) {
@@ -106,7 +117,6 @@ class JSONWriter extends TextResponseWriter {
     if(wrapperFunction!=null) {
         writer.write(wrapperFunction + "(");
     }
-    if(req.getParams().getBool(CommonParams.OMIT_HEADER, false)) rsp.removeResponseHeader();
     writeNamedList(null, rsp.getValues());
     if(wrapperFunction!=null) {
         writer.write(')');
@@ -181,6 +191,7 @@ class JSONWriter extends TextResponseWriter {
    * repeating any keys if they are repeated in the NamedList.  null is mapped
    * to "".
    */ 
+  // NamedList("a"=1,"bar"="foo",null=3) => {"a":1,"bar":"foo","":3}
   protected void writeNamedListAsMapWithDups(String name, NamedList val) throws IOException {
     int sz = val.size();
     writeMapOpener(sz);
@@ -285,7 +296,7 @@ class JSONWriter extends TextResponseWriter {
   // NamedList("a"=1,"b"=2,null=3) => ["a",1,"b",2,null,3]
   protected void writeNamedListAsFlat(String name, NamedList val) throws IOException {
     int sz = val.size();
-    writeArrayOpener(sz);
+    writeArrayOpener(sz*2);
     incLevel();
 
     for (int i=0; i<sz; i++) {
@@ -505,6 +516,53 @@ class JSONWriter extends TextResponseWriter {
     }
   }
 
+  @Override
+  public void writeIterator(IteratorWriter val) throws IOException {
+    writeArrayOpener(-1);
+    incLevel();
+    val.writeIter(new IteratorWriter.ItemWriter() {
+      boolean first = true;
+
+      @Override
+      public IteratorWriter.ItemWriter add(Object o) throws IOException {
+        if (!first) {
+          JSONWriter.this.indent();
+          JSONWriter.this.writeArraySeparator();
+        }
+        JSONWriter.this.writeVal(null, o);
+        first = false;
+        return this;
+      }
+    });
+    decLevel();
+    writeArrayCloser();
+  }
+
+  @Override
+  public void writeMap(MapWriter val)
+      throws IOException {
+    writeMapOpener(-1);
+    incLevel();
+
+    val.writeMap(new EntryWriter() {
+      boolean isFirst = true;
+
+      @Override
+      public EntryWriter put(String k, Object v) throws IOException {
+        if (isFirst) {
+          isFirst = false;
+        } else {
+          JSONWriter.this.writeMapSeparator();
+        }
+        if (doIndent) JSONWriter.this.indent();
+        JSONWriter.this.writeKey(k, true);
+        JSONWriter.this.writeVal(k, v);
+        return this;
+      }
+    });
+    decLevel();
+    writeMapCloser();
+  }
 
   @Override
   public void writeMap(String name, Map val, boolean excludeOuter, boolean isFirstVal) throws IOException {
@@ -539,8 +597,20 @@ class JSONWriter extends TextResponseWriter {
   }
 
   @Override
+  public void writeArray(String name, List l) throws IOException {
+    writeArrayOpener(l.size());
+    writeJsonIter(l.iterator());
+    writeArrayCloser();
+  }
+
+  @Override
   public void writeArray(String name, Iterator val) throws IOException {
     writeArrayOpener(-1); // no trivial way to determine array size
+    writeJsonIter(val);
+    writeArrayCloser();
+  }
+
+  private void writeJsonIter(Iterator val) throws IOException {
     incLevel();
     boolean first=true;
     while( val.hasNext() ) {
@@ -552,7 +622,6 @@ class JSONWriter extends TextResponseWriter {
       first=false;
     }
     decLevel();
-    writeArrayCloser();
   }
 
   //
